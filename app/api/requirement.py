@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from service.ai.requirement_extractor import create_requirement
-from schemas.requirement import RequestRequirement, ResponseRequirement
+from schemas.requirement import RequestRequirement, StructuredRequirement
 from schemas.common import ErrorResponse
 
 router = APIRouter(prefix="/requirement")
@@ -12,7 +12,7 @@ OpenAI gpt-5-mini를 사용합니다.
 @router.post(
     "",
     description=requirement_description,
-    response_model=ResponseRequirement,
+    response_model=StructuredRequirement,
     responses={
         500: {
             "model": ErrorResponse,
@@ -23,6 +23,6 @@ OpenAI gpt-5-mini를 사용합니다.
 async def requirement(request: RequestRequirement):
 	try:
 		output = await create_requirement(request.input_text)
-		return {"output_text": output}
+		return output
 	except:
 		raise HTTPException(status_code=500)

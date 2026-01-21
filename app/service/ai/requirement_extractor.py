@@ -1,6 +1,5 @@
-from openai import AsyncOpenAI
-
-client = AsyncOpenAI()
+from service.ai.openai_client import client
+from schemas.requirement import StructuredRequirement
 
 instructions = """
 You are a Product Manager with 10 years of experience.
@@ -19,16 +18,14 @@ Always structure the output using the following sections:
 7. Open Questions & Assumptions
 """
 
-async def create_requirement(requirement_text: str) -> str:
-    response = await client.responses.create(
-        model="gpt-4.1-mini",
-        instructions=instructions,
-        input=[
-            {
-                "role": "user",
-                "content": requirement_text
-            }
-        ]
+async def create_requirement(requirement_text: str) -> StructuredRequirement:
+    response = await client.beta.chat.completions.parse(
+        model="gpt-5-mini",
+        messages=[
+            {"role": "system", "content": instructions},
+            {"role": "user", "content": requirement_text}
+        ],
+        response_format=StructuredRequirement
     )
 
-    return response.output_text
+    return response.choices[0].message.parsed
