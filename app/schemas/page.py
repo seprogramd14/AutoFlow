@@ -1,8 +1,9 @@
 from pydantic import BaseModel
-from schemas.requirement import StructuredRequirement
+from schemas.requirement import Requirement
 
-class RequestPage(StructuredRequirement):
-    pass
+class RequestPage(BaseModel):
+    section_ids: list[int]
+    requirement: list[Requirement]
 
 class PageDetail(BaseModel):
     page_name: str

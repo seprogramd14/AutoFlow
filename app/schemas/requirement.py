@@ -7,9 +7,9 @@ class ResponseRequirement(BaseModel):
   output_text: str
 
 class Requirement(BaseModel):
-  id: int
-  section: str
+  section_id: int
+  section_name: str
   sentences: list[str]
 
 class StructuredRequirement(BaseModel):
-  requirements: list[Requirement]
+  requirement: list[Requirement]

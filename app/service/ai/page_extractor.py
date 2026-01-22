@@ -1,5 +1,5 @@
 from service.ai.openai_client import client
-from schemas.requirement import StructuredRequirement, Requirement
+from schemas.requirement import Requirement, StructuredRequirement
 from schemas.page import StructuredPageDetails
 
 instructions = """
@@ -27,51 +27,19 @@ Be thorough and extract all pages mentioned in the requirements.
 Organize the information clearly for frontend implementation.
 """
 
-def filter_page_relevant_requirements(requirements: list[Requirement]) -> list[Requirement]:
-    """
-    Filter requirements to include only sections 3, 4, and 5.1
-    - Section 3: System Structure
-    - Section 4: Functional Requirements
-    - Section 5.1: API Requirements - Endpoints Needed
-    """
-    filtered = []
-    for req in requirements:
-        section = req.section.strip()
-        # Section 3: System Structure
-        if section.startswith("3."):
-            filtered.append(req)
-        # Section 4: Functional Requirements
-        elif section.startswith("4."):
-            filtered.append(req)
-        # Section 5.1: Endpoints
-        elif "5.1" in section or section.startswith("5. API Requirements - 5.1"):
-            filtered.append(req)
-    return filtered
-
 def format_requirements_as_text(requirements: list[Requirement]) -> str:
     """Convert filtered requirements into readable text format"""
     text_parts = []
     for req in requirements:
-        text_parts.append(f"## {req.section}")
+        text_parts.append(f"## Section {req.section_id}: {req.section_name}")
         for sentence in req.sentences:
             text_parts.append(f"- {sentence}")
         text_parts.append("")  # Empty line between sections
     return "\n".join(text_parts)
 
-async def create_page_details(requirements: StructuredRequirement) -> StructuredPageDetails:
-    """
-    Extract page details from requirements by filtering sections 3, 4, and 5.1
-    and generating structured page specifications using OpenAI API
-    """
-    # Filter relevant requirements
-    filtered_reqs = filter_page_relevant_requirements(requirements.requirements)
-
-    if not filtered_reqs:
-        # Return empty result if no relevant sections found
-        return StructuredPageDetails(pages=[])
-
+async def create_page_details(sections):
     # Convert to text format for prompt
-    requirements_text = format_requirements_as_text(filtered_reqs)
+    requirements_text = format_requirements_as_text(sections)
 
     # Call OpenAI API with structured output
     response = await client.beta.chat.completions.parse(
